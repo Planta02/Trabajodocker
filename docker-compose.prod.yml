@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+
+  webserver:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - server_api
+    networks:
+      - prod_network
+
+  server_api:
+    build:
+      context: ./APIS
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 256M
+    expose:
+      - "3001-3005:3000"
+    volumes:
+      - ./APIS/server/:/srv/serverAPI/
+    depends_on:
+      - db
+    networks:
+      - prod_network
+
+  db:
+    image: postgres
+    shm_size: 128mb
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 2GB
+        reservations:
+          cpus: "0.1"
+          memory: 1GB
+    volumes:
+      - ./pgdata_prod/server:/var/lib/postgresql/data
+    env_file:
+      - ./.env.prod
+    networks:
+      - prod_network
+
+networks:
+  prod_network:
+    driver: bridge

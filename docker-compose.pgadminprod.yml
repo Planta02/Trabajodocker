@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: distri_pgadmin
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: plant@02.com
+      PGADMIN_DEFAULT_PASSWORD: 12345
+    volumes:
+      - ./pgadmin-data:/var/lib/pgadmin
+    networks:
+      - prod_network
+
+networks:
+  prod_network:
+    driver: bridge
