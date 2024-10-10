@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+
+  server_api:
+    build:
+      context: ./APIS
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.15"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 256M
+    ports:
+      - "52000:3000"
+    volumes:
+      - ./APIS/server/:/srv/serverAPI/
+    depends_on:
+      - db
+    networks:
+      - dev_network
+
+  db:
+    image: postgres
+    shm_size: 128mb
+    ports:
+      - "5432:5432"  
+    volumes:
+      - ./pgdata/server:/var/lib/postgresql/data
+    networks:
+      - dev_network
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: distri_pgadmin
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: plant@02.com
+      PGADMIN_DEFAULT_PASSWORD: 12345
+    volumes:
+      - ./pgadmin-data:/var/lib/pgadmin
+    networks:
+      - dev_network
+
+networks:
+  dev_network:
+    driver: bridge
